@@ -1,0 +1,24 @@
+name: Databricks CI/CD
+on:
+  workflow_run:
+    workflows: [Package Databricks Notebooks]
+    types: [completed]
+jobs:
+  deploy_job_dev:
+    name: Deploy to Development
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: [ubuntu-latest]
+    environment: Development
+    steps:
+    - name: Deploy notebooks
+      uses:
+  with:
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        resource-group: ${{ vars.RESOURCE_GROUP }}
+        databricks: ${{ vars.DATABRICKS }}
+        artifact-name: ${{ vars.ARTIFACT_NAME }}
+        build-run-id: ${{ github.event.workflow_run.id }}
+        delete-notebooks: false
